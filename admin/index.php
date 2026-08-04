@@ -103,9 +103,9 @@ $success_message = $_GET["success"] ?? "";
             >
                 Products
             </a>
-
-            <a href="create.php">
-                Add Product
+            <a 
+                href="orders.php">
+                Orders
             </a>
             
             <?php if (isAdmin()): ?>
@@ -155,6 +155,7 @@ $success_message = $_GET["success"] ?? "";
         >
             + Add Product
         </a>
+
 
     </section>
 
