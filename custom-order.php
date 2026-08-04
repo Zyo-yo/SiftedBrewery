@@ -6,6 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 require __DIR__ . "/includes/connect.php";
 require __DIR__ . "/includes/csrf.php";
+require __DIR__ . "/includes/order-image-upload.php";
 
 $page_title = "Custom Order | The Sifted Brewery";
 $current_page = "custom-order";
@@ -77,6 +78,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             "Order details cannot exceed 5,000 characters.";
     }
 
+    $inspiration_image = null;
+    $saved_image_path = null;
+
+    if (empty($errors)) {
+        $upload_result = saveOrderImage(
+            $_FILES["inspiration_image"] ?? []
+        );
+
+        if ($upload_result["error"] !== null) {
+            $errors[] = $upload_result["error"];
+        } else {
+            $inspiration_image =
+                $upload_result["relative_path"];
+
+            $saved_image_path =
+                $upload_result["absolute_path"];
+        }
+    }
+
     if (empty($errors)) {
         $query = "
             INSERT INTO orders
@@ -85,6 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 email,
                 phone,
                 order_details,
+                inspiration_image,
                 status
             )
             VALUES
@@ -93,23 +114,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 :email,
                 :phone,
                 :order_details,
+                :inspiration_image,
                 'Pending'
             )
         ";
 
         $statement = $db->prepare($query);
 
-        $statement->execute([
-            ":customer_name" => $customer_name,
-            ":email" => $email,
-            ":phone" => $phone !== "" ? $phone : null,
-            ":order_details" => $order_details
-        ]);
+        try {
+            $statement->execute([
+                ":customer_name" => $customer_name,
+                ":email" => $email,
+                ":phone" => $phone !== "" ? $phone : null,
+                ":order_details" => $order_details,
+                ":inspiration_image" => $inspiration_image
+            ]);
 
-        header(
-            "Location: custom-order.php?success=submitted"
-        );
-        exit;
+            header(
+                "Location: custom-order.php?success=submitted"
+            );
+            exit;
+        } catch (PDOException $exception) {
+            if (
+                $saved_image_path !== null &&
+                is_file($saved_image_path)
+            ) {
+                unlink($saved_image_path);
+            }
+
+            $errors[] =
+                "Your request could not be saved. Please try again.";
+        }
     }
 }
 
@@ -180,7 +215,10 @@ include __DIR__ . "/includes/nav.php";
 
         <?php endif; ?>
 
-        <form method="post">
+        <form
+            method="post"
+            enctype="multipart/form-data"
+        >
 
             <?= csrfField() ?>
 
@@ -278,6 +316,25 @@ include __DIR__ . "/includes/nav.php";
                 <small>
                     Include the occasion, preferred date,
                     flavours, serving size, and design ideas.
+                </small>
+
+            </div>
+            <div class="form-group">
+
+                <label for="inspiration_image">
+                    Inspiration Image
+                </label>
+
+                <input
+                    type="file"
+                    id="inspiration_image"
+                    name="inspiration_image"
+                    accept=".jpg,.jpeg,.png,.webp"
+                >
+
+                <small>
+                    Optional. Upload a JPG, PNG, or WebP image.
+                    Maximum size: 2 MB.
                 </small>
 
             </div>
