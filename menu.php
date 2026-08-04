@@ -16,8 +16,15 @@ $categories = [
 ];
 
 /*
- * Retrieve only products marked as available.
+ * Retrieve only available products and optionally
+ * filter them using the public search term.
  */
+$search = trim($_GET["q"] ?? "");
+
+if (mb_strlen($search) > 100) {
+    $search = mb_substr($search, 0, 100);
+}
+
 $query = "
     SELECT
         product_id,
@@ -28,11 +35,39 @@ $query = "
         image
     FROM products
     WHERE available = 1
+";
+
+$query_parameters = [];
+
+if ($search !== "") {
+    $query .= "
+        AND
+        (
+            name LIKE :name_search
+            OR description LIKE :description_search
+            OR category LIKE :category_search
+        )
+    ";
+
+    $search_value =
+        "%" . $search . "%";
+
+    $query_parameters[":name_search"] =
+        $search_value;
+
+    $query_parameters[":description_search"] =
+        $search_value;
+
+    $query_parameters[":category_search"] =
+        $search_value;
+}
+
+$query .= "
     ORDER BY category ASC, name ASC
 ";
 
 $statement = $db->prepare($query);
-$statement->execute();
+$statement->execute($query_parameters);
 
 $products = $statement->fetchAll(PDO::FETCH_ASSOC);
 
@@ -82,6 +117,53 @@ include __DIR__ . "/includes/nav.php";
                 Browse our selection of pastries, cakes, specialty
                 drinks, and comforting meals prepared with care.
             </p>
+            <form
+                class="menu-search"
+                method="get"
+                action="menu.php"
+                role="search"
+            >
+
+                <label for="menu-search">
+                    Search Our Menu
+                </label>
+
+                <div class="menu-search-controls">
+
+                    <input
+                        type="search"
+                        id="menu-search"
+                        name="q"
+                        value="<?= htmlspecialchars(
+                            $search,
+                            ENT_QUOTES,
+                            "UTF-8"
+                        ) ?>"
+                        maxlength="100"
+                        placeholder="Search products or categories"
+                    >
+
+                    <button
+                        class="button button-primary"
+                        type="submit"
+                    >
+                        Search
+                    </button>
+
+                </div>
+
+                <?php if ($search !== ""): ?>
+
+                    <a
+                        class="menu-search-clear"
+                        href="menu.php"
+                    >
+                        Clear search
+                    </a>
+
+                <?php endif; ?>
+
+            </form>
 
         </div>
 
@@ -112,16 +194,47 @@ include __DIR__ . "/includes/nav.php";
 
     </nav>
 
-    <section class="content-section menu-content">
+        <section class="content-section menu-content">
 
-        <?php if (!empty($products)): ?>
+            <?php if ($search !== ""): ?>
+
+                <p class="search-summary">
+
+                    Found
+                    <strong><?= count($products) ?></strong>
+
+                    <?= count($products) === 1
+                        ? "result"
+                        : "results" ?>
+
+                    for
+                    <strong>
+                        “<?= htmlspecialchars(
+                            $search,
+                            ENT_QUOTES,
+                            "UTF-8"
+                        ) ?>”
+                    </strong>.
+
+                </p>
+
+            <?php endif; ?>
+
+            <?php if (!empty($products)): ?>
 
             <?php foreach ($categories as $category): ?>
 
                 <?php
-                $category_products =
-                    $products_by_category[$category];
-                ?>
+                    $category_products =
+                    $products_by_category[$category]; 
+
+                    if (
+                        $search !== "" &&
+                        empty($category_products)
+                    ) {
+                        continue;
+                    }
+                    ?>
 
                 <section
                     class="menu-category-section"
@@ -342,7 +455,25 @@ include __DIR__ . "/includes/nav.php";
 
         <?php else: ?>
 
-            <div class="empty-menu-message">
+        <div class="empty-menu-message">
+
+            <?php if ($search !== ""): ?>
+
+                <h2>No matching products found.</h2>
+
+                <p>
+                    Try another product name, description,
+                    or category.
+                </p>
+
+                <a
+                    class="button button-secondary"
+                    href="menu.php"
+                >
+                    Clear Search
+                </a>
+
+            <?php else: ?>
 
                 <h2>Our menu is being prepared.</h2>
 
@@ -358,7 +489,9 @@ include __DIR__ . "/includes/nav.php";
                     Return Home
                 </a>
 
-            </div>
+            <?php endif; ?>
+
+        </div>
 
         <?php endif; ?>
 

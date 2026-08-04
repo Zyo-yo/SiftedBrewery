@@ -2155,6 +2155,108 @@ select {
     border-radius: 5px;
 }
 
+.menu-hero-content > p:not(.eyebrow) {
+    max-width: 620px;
+    margin: 0 auto;
+    color: var(--medium-brown);
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+.menu-search {
+    width: min(100%, 660px);
+    margin: 32px auto 0;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.65);
+    border: 1px solid var(--light-brown);
+    border-radius: 7px;
+    box-shadow: var(--shadow-small);
+    text-align: left;
+}
+
+.menu-search label {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--dark-brown);
+    font-size: 0.95rem;
+    font-weight: bold;
+}
+
+.menu-search-controls {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+}
+
+.menu-search-controls input {
+    flex: 1;
+    min-width: 0;
+    min-height: 50px;
+    padding: 12px 16px;
+    background-color: var(--white);
+    color: var(--dark-brown);
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    font: inherit;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.menu-search-controls input::placeholder {
+    color: var(--soft-brown);
+}
+
+.menu-search-controls input:focus {
+    border-color: var(--medium-brown);
+    box-shadow: 0 0 0 3px rgba(91, 69, 39, 0.15);
+    outline: none;
+}
+
+.menu-search-controls .button {
+    min-width: 120px;
+    min-height: 50px;
+}
+
+.menu-search-clear {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--medium-brown);
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.menu-search-clear:hover,
+.menu-search-clear:focus-visible {
+    color: var(--dark-brown);
+}
+
+.search-summary {
+    margin-bottom: 28px;
+    padding: 16px 20px;
+    background-color: var(--light-cream);
+    color: var(--dark-brown);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--medium-brown);
+    border-radius: 5px;
+}
+
+@media (max-width: 560px) {
+    .menu-search {
+        padding: 16px;
+    }
+
+    .menu-search-controls {
+        flex-direction: column;
+    }
+
+    .menu-search-controls .button {
+        width: 100%;
+    }
+}
+
 /* =====================================
    MEDIA QUERY FOR SMALL SCREENS
 ===================================== */
