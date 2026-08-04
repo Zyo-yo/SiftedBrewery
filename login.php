@@ -2,21 +2,67 @@
 
 session_start();
 
+require __DIR__ . "/includes/connect.php";
+
 $error_message = "";
+
+if (
+    isset($_GET["error"]) &&
+    $_GET["error"] === "authentication_required"
+) {
+    $error_message = "You must log in before accessing the admin area.";
+}
+
+if (isset($_SESSION["authenticated"]) && $_SESSION["authenticated"] === true) {
+    header("Location: admin/index.php");
+    exit;
+}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = trim($_POST["username"] ?? "");
     $password = $_POST["password"] ?? "";
 
-    if ($username === "admin" && $password === "password123") {
-        $_SESSION["authenticated"] = true;
-        $_SESSION["username"] = $username;
+    if ($username === "" || $password === "") {
+        $error_message = "Username and password are required.";
+    } else {
+        $query = "
+            SELECT
+                users.user_id,
+                users.username,
+                users.password,
+                roles.role_name
+            FROM users
+            INNER JOIN roles
+                ON roles.role_id = users.role_id
+            WHERE users.username = :username
+            LIMIT 1
+        ";
 
-        header("Location: admin/index.php");
-        exit;
+        $statement = $db->prepare($query);
+
+        $statement->execute([
+            ":username" => $username
+        ]);
+
+        $user = $statement->fetch();
+
+        if (
+            $user &&
+            password_verify($password, $user["password"])
+        ) {
+            session_regenerate_id(true);
+
+            $_SESSION["authenticated"] = true;
+            $_SESSION["user_id"] = (int) $user["user_id"];
+            $_SESSION["username"] = $user["username"];
+            $_SESSION["role"] = $user["role_name"];
+
+            header("Location: admin/index.php");
+            exit;
+        }
+
+        $error_message = "Invalid username or password.";
     }
-
-    $error_message = "Invalid username or password.";
 }
 ?>
 
