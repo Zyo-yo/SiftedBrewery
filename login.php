@@ -6,11 +6,14 @@ require __DIR__ . "/includes/connect.php";
 
 $error_message = "";
 
-if (
-    isset($_GET["error"]) &&
-    $_GET["error"] === "authentication_required"
-) {
-    $error_message = "You must log in before accessing the admin area.";
+if (isset($_GET["error"])) {
+    if ($_GET["error"] === "authentication_required") {
+        $error_message =
+            "You must log in before accessing the admin area.";
+    } elseif ($_GET["error"] === "account_unavailable") {
+        $error_message =
+            "Your account is no longer available. Please contact the administrator.";
+    }
 }
 
 if (isset($_SESSION["authenticated"]) && $_SESSION["authenticated"] === true) {

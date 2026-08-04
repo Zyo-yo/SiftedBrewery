@@ -16,6 +16,44 @@ if (!$is_authenticated) {
 
     session_destroy();
 
-    header("Location: ../login.php?error=authentication_required");
+    header(
+        "Location: ../login.php?error=authentication_required"
+    );
     exit;
 }
+
+require_once __DIR__ . "/connect.php";
+
+$query = "
+    SELECT
+        users.user_id,
+        users.username,
+        roles.role_name
+    FROM users
+    INNER JOIN roles
+        ON roles.role_id = users.role_id
+    WHERE users.user_id = :user_id
+    LIMIT 1
+";
+
+$statement = $db->prepare($query);
+
+$statement->execute([
+    ":user_id" => (int) $_SESSION["user_id"]
+]);
+
+$current_user = $statement->fetch();
+
+if (!$current_user) {
+    $_SESSION = [];
+
+    session_destroy();
+
+    header(
+        "Location: ../login.php?error=account_unavailable"
+    );
+    exit;
+}
+
+$_SESSION["username"] = $current_user["username"];
+$_SESSION["role"] = $current_user["role_name"];
