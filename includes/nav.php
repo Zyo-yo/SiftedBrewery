@@ -88,7 +88,7 @@ $current_page = $current_page ?? "";
 
             <a
                 class="admin-link"
-                href="admin/index.php"
+                href="login.php"
             >
                 Admin
             </a>
