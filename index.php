@@ -40,7 +40,7 @@ include __DIR__ . "/includes/nav.php";
                 </a>
 
                 <a
-                    class="button button-light"
+                    class="button button-primary"
                     href="custom-order.php"
                 >
                     Start a Custom Order
@@ -138,7 +138,7 @@ include __DIR__ . "/includes/nav.php";
 
             <a
                 class="button button-light"
-                href="#"
+                href="custom-order.php"
             >
                 Start a Custom Order
             </a>
