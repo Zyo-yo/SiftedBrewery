@@ -112,8 +112,11 @@ $success_message = $_GET["success"] ?? "";
                 <a href="users.php">
                     Accounts
                 </a>
-            <?php endif; ?>            
+            <?php endif; ?>   
 
+            <a href="change-password.php">
+                Change Password
+            </a>
             <a
                 class="admin-link"
                 href="../logout.php"
@@ -173,7 +176,15 @@ $success_message = $_GET["success"] ?? "";
             Product deleted successfully.
         </div>
 
+    <?php elseif ($success_message === "password_changed"): ?>
+
+    <div class="message success-message">
+        Your password was changed successfully.
+    </div>
+
     <?php endif; ?>
+
+
 
     <section class="admin-toolbar">
 
