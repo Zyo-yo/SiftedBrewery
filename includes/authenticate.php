@@ -9,7 +9,8 @@ $is_authenticated =
     $_SESSION["authenticated"] === true &&
     isset($_SESSION["user_id"]) &&
     isset($_SESSION["username"]) &&
-    isset($_SESSION["role"]);
+    isset($_SESSION["role"]) &&
+    isset($_SESSION["password_signature"]);
 
 if (!$is_authenticated) {
     $_SESSION = [];
@@ -28,6 +29,7 @@ $query = "
     SELECT
         users.user_id,
         users.username,
+        users.password,
         roles.role_name
     FROM users
     INNER JOIN roles
@@ -51,6 +53,27 @@ if (!$current_user) {
 
     header(
         "Location: ../login.php?error=account_unavailable"
+    );
+    exit;
+}
+
+$current_password_signature = hash(
+    "sha256",
+    $current_user["password"]
+);
+
+if (
+    !hash_equals(
+        $_SESSION["password_signature"],
+        $current_password_signature
+    )
+) {
+    $_SESSION = [];
+
+    session_destroy();
+
+    header(
+        "Location: ../login.php?error=credentials_changed"
     );
     exit;
 }

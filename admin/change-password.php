@@ -90,6 +90,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             ":user_id" => (int) $_SESSION["user_id"]
         ]);
 
+        $_SESSION["password_signature"] = hash(
+            "sha256",
+            $password_hash
+        );
+
         session_regenerate_id(true);
 
         header(

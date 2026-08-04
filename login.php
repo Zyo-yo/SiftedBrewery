@@ -13,6 +13,9 @@ if (isset($_GET["error"])) {
     } elseif ($_GET["error"] === "account_unavailable") {
         $error_message =
             "Your account is no longer available. Please contact the administrator.";
+    } elseif ($_GET["error"] === "credentials_changed") {
+        $error_message =
+            "Your password was changed. Please log in again.";
     }
 }
 
@@ -55,10 +58,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         ) {
             session_regenerate_id(true);
 
-            $_SESSION["authenticated"] = true;
-            $_SESSION["user_id"] = (int) $user["user_id"];
-            $_SESSION["username"] = $user["username"];
-            $_SESSION["role"] = $user["role_name"];
+                $_SESSION["authenticated"] = true;
+                $_SESSION["user_id"] = (int) $user["user_id"];
+                $_SESSION["username"] = $user["username"];
+                $_SESSION["role"] = $user["role_name"];
+                $_SESSION["password_signature"] = hash(
+                    "sha256",
+                    $user["password"]
+                );
 
             header("Location: admin/index.php");
             exit;
