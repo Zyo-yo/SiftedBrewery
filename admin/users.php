@@ -3,6 +3,7 @@
 require __DIR__ . "/../includes/authenticate.php";
 require __DIR__ . "/../includes/authorize.php";
 require __DIR__ . "/../includes/connect.php";
+require __DIR__ . "/../includes/csrf.php";
 
 requireAdmin();
 
@@ -68,9 +69,13 @@ $users = $statement->fetchAll();
 
         <div class="navigation-links admin-navigation">
 
-            <a href="../index.php">View Website</a>
+            <a href="../index.php">
+                View Website
+            </a>
 
-            <a href="index.php">Products</a>
+            <a href="index.php">
+                Products
+            </a>
 
             <a class="active" href="users.php">
                 Accounts
@@ -99,11 +104,12 @@ $users = $statement->fetchAll();
             <h1>Manage Accounts</h1>
 
             <p class="admin-description">
-                View the accounts that can access the content
-                management system.
+                View and manage the accounts that can access the
+                content management system.
             </p>
 
         </div>
+
         <a
             class="button button-primary"
             href="create-user.php"
@@ -113,18 +119,62 @@ $users = $statement->fetchAll();
 
     </section>
 
+    <?php if (($_GET["success"] ?? "") === "created"): ?>
+
+        <div class="message success-message">
+            Account created successfully.
+        </div>
+
+    <?php elseif (($_GET["success"] ?? "") === "deleted"): ?>
+
+        <div class="message success-message">
+            Account deleted successfully.
+        </div>
+
+    <?php endif; ?>
+
+    <?php if (isset($_GET["error"])): ?>
+
+        <div class="message error-message">
+
+            <?php if ($_GET["error"] === "cannot_delete_admin"): ?>
+
+                The main Admin account cannot be deleted.
+
+            <?php elseif ($_GET["error"] === "cannot_delete_self"): ?>
+
+                You cannot delete your own account.
+
+            <?php elseif ($_GET["error"] === "user_not_found"): ?>
+
+                The selected account could not be found.
+
+            <?php elseif ($_GET["error"] === "invalid_request"): ?>
+
+                The request expired or was invalid. Please try again.
+
+            <?php elseif ($_GET["error"] === "invalid_user"): ?>
+
+                The selected account is invalid.
+
+            <?php else: ?>
+
+                The account could not be deleted.
+
+            <?php endif; ?>
+
+        </div>
+
+    <?php endif; ?>
+
     <section class="admin-toolbar">
-        <?php if (($_GET["success"] ?? "") === "created"): ?>
 
-            <div class="message success-message">
-                Account created successfully.
-            </div>
-
-        <?php endif; ?>
         <div>
             <strong>
                 <?= count($users) ?>
-                <?= count($users) === 1 ? "account" : "accounts" ?>
+                <?= count($users) === 1
+                    ? "account"
+                    : "accounts" ?>
             </strong>
         </div>
 
@@ -155,6 +205,7 @@ $users = $statement->fetchAll();
                         <th scope="col">Role</th>
                         <th scope="col">Created</th>
                         <th scope="col">Updated</th>
+                        <th scope="col">Actions</th>
                     </tr>
 
                 </thead>
@@ -166,6 +217,7 @@ $users = $statement->fetchAll();
                         <tr>
 
                             <td>
+
                                 <strong>
                                     <?= htmlspecialchars(
                                         $user["username"],
@@ -178,10 +230,13 @@ $users = $statement->fetchAll();
                                     (int) $user["user_id"] ===
                                     (int) $_SESSION["user_id"]
                                 ): ?>
+
                                     <span class="status status-available">
                                         You
                                     </span>
+
                                 <?php endif; ?>
+
                             </td>
 
                             <td>
@@ -204,6 +259,45 @@ $users = $statement->fetchAll();
                                     "M j, Y",
                                     strtotime($user["updated_at"])
                                 ) ?>
+                            </td>
+
+                            <td>
+
+                                <?php if (
+                                    $user["role_name"] !== "Admin"
+                                ): ?>
+
+                                    <form
+                                        method="post"
+                                        action="delete-user.php"
+                                        onsubmit="return confirm('Are you sure you want to delete this account?');"
+                                    >
+
+                                        <?= csrfField() ?>
+
+                                        <input
+                                            type="hidden"
+                                            name="user_id"
+                                            value="<?= (int) $user["user_id"] ?>"
+                                        >
+
+                                        <button
+                                            class="delete-link"
+                                            type="submit"
+                                        >
+                                            Delete
+                                        </button>
+
+                                    </form>
+
+                                <?php else: ?>
+
+                                    <span class="status status-available">
+                                        Protected
+                                    </span>
+
+                                <?php endif; ?>
+
                             </td>
 
                         </tr>
