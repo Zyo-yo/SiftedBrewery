@@ -3,6 +3,7 @@
 require __DIR__ . "/../includes/authenticate.php";
 require __DIR__ . "/../includes/authorize.php";
 require __DIR__ . "/../includes/connect.php";
+require __DIR__ . "/../includes/csrf.php";
 
 $order_id = filter_input(
     INPUT_GET,
@@ -177,6 +178,15 @@ if (!empty($order["inspiration_image"])) {
         </a>
 
     </section>
+    <?php if (
+        ($_GET["success"] ?? "") === "completed"
+    ): ?>
+
+        <div class="message success-message">
+            Order marked as Done successfully.
+        </div>
+
+    <?php endif; ?>
 
     <div class="visit-grid">
 
@@ -239,6 +249,42 @@ if (!empty($order["inspiration_image"])) {
                     ) ?>
                 </span>
             </p>
+
+            <?php if (
+                isAdmin() &&
+                $order["status"] !== "Done"
+            ): ?>
+
+                <form
+                    method="post"
+                    action="complete-order.php"
+                    onsubmit="return confirm('Mark this order as Done?');"
+                >
+
+                    <?= csrfField() ?>
+
+                    <input
+                        type="hidden"
+                        name="order_id"
+                        value="<?= (int) $order["order_id"] ?>"
+                    >
+
+                    <button
+                        class="button button-primary"
+                        type="submit"
+                    >
+                        Mark as Done
+                    </button>
+
+                </form>
+
+            <?php elseif ($order["status"] === "Done"): ?>
+
+                <p>
+                    This order has been completed.
+                </p>
+
+            <?php endif; ?>
 
             <p>
                 <strong>Last updated:</strong><br>
