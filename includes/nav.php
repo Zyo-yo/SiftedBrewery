@@ -74,7 +74,12 @@ $current_page = $current_page ?? "";
                 Menu
             </a>
 
-            <a href="index.php#custom-orders">
+            <a
+                class="<?= $current_page === "custom-order"
+                    ? "active"
+                    : "" ?>"
+                href="custom-order.php"
+            >
                 Custom Orders
             </a>
 

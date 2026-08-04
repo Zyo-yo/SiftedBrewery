@@ -40,10 +40,10 @@ include __DIR__ . "/includes/nav.php";
                 </a>
 
                 <a
-                    class="button button-secondary"
-                    href="#custom-orders"
+                    class="button button-light"
+                    href="custom-order.php"
                 >
-                    Order a Custom Cake
+                    Start a Custom Order
                 </a>
 
             </div>
