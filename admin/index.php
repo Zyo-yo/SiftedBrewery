@@ -1,7 +1,9 @@
 <?php
 
 require __DIR__ . "/../includes/authenticate.php";
+require __DIR__ . "/../includes/authorize.php";
 require __DIR__ . "/../includes/connect.php";
+
 
 
 /*
@@ -105,6 +107,12 @@ $success_message = $_GET["success"] ?? "";
             <a href="create.php">
                 Add Product
             </a>
+            
+            <?php if (isAdmin()): ?>
+                <a href="users.php">
+                    Accounts
+                </a>
+            <?php endif; ?>            
 
             <a
                 class="admin-link"
