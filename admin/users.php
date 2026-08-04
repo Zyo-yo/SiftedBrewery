@@ -131,6 +131,12 @@ $users = $statement->fetchAll();
             Account deleted successfully.
         </div>
 
+    <?php elseif (($_GET["success"] ?? "") === "password_reset"): ?>
+
+        <div class="message success-message">
+            User password reset successfully.
+        </div>
+
     <?php endif; ?>
 
     <?php if (isset($_GET["error"])): ?>
@@ -260,12 +266,20 @@ $users = $statement->fetchAll();
                                     strtotime($user["updated_at"])
                                 ) ?>
                             </td>
+                        <td>
 
-                            <td>
+                            <?php if (
+                                $user["role_name"] !== "Admin"
+                            ): ?>
 
-                                <?php if (
-                                    $user["role_name"] !== "Admin"
-                                ): ?>
+                                <div class="table-actions">
+
+                                    <a
+                                        class="edit-link"
+                                        href="reset-user-password.php?id=<?= (int) $user["user_id"] ?>"
+                                    >
+                                        Reset Password
+                                    </a>
 
                                     <form
                                         method="post"
@@ -290,15 +304,18 @@ $users = $statement->fetchAll();
 
                                     </form>
 
-                                <?php else: ?>
+                                </div>
 
-                                    <span class="status status-available">
-                                        Protected
-                                    </span>
+                            <?php else: ?>
 
-                                <?php endif; ?>
+                                <span class="status status-available">
+                                    Protected
+                                </span>
 
-                            </td>
+                            <?php endif; ?>
+
+                        </td>
+                            
 
                         </tr>
 
