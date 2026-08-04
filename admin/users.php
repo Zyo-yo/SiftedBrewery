@@ -104,11 +104,23 @@ $users = $statement->fetchAll();
             </p>
 
         </div>
+        <a
+            class="button button-primary"
+            href="create-user.php"
+        >
+            + Create Account
+        </a>
 
     </section>
 
     <section class="admin-toolbar">
+        <?php if (($_GET["success"] ?? "") === "created"): ?>
 
+            <div class="message success-message">
+                Account created successfully.
+            </div>
+
+        <?php endif; ?>
         <div>
             <strong>
                 <?= count($users) ?>
