@@ -161,6 +161,8 @@ $orders = $statement->fetchAll();
                         <th scope="col">Status</th>
                         <th scope="col">Submitted</th>
                         <th scope="col">Updated</th>
+                        <th scope="col">Updated</th>
+                        <th scope="col">Actions</th>
                     </tr>
 
                 </thead>
@@ -260,6 +262,15 @@ $orders = $statement->fetchAll();
                                     "M j, Y",
                                     strtotime($order["updated_at"])
                                 ) ?>
+                            </td>
+
+                            <td>
+                                <a
+                                    class="edit-link"
+                                    href="order-details.php?id=<?= (int) $order["order_id"] ?>"
+                                >
+                                    View
+                                </a>
                             </td>
 
                         </tr>
