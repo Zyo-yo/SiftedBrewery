@@ -6,6 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 require __DIR__ . "/includes/connect.php";
 require __DIR__ . "/includes/csrf.php";
+require __DIR__ . "/includes/captcha.php";
 require __DIR__ . "/includes/order-image-upload.php";
 
 $page_title = "Custom Order | The Sifted Brewery";
@@ -37,6 +38,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!isValidCsrfToken($_POST["csrf_token"] ?? null)) {
         $errors[] =
             "Your session expired. Refresh the page and try again.";
+    }
+    if (
+    !validateCaptchaAnswer(
+        $_POST["captcha_answer"] ?? null
+        )
+    ) {
+        $errors[] =
+            "The security-check answer is incorrect. Please try again.";
     }
 
     if ($customer_name === "") {
@@ -335,6 +344,36 @@ include __DIR__ . "/includes/nav.php";
                 <small>
                     Optional. Upload a JPG, PNG, or WebP image.
                     Maximum size: 2 MB.
+                </small>
+
+            </div>
+            <div class="form-group">
+
+                <label for="captcha_answer">
+                    Security Check
+                </label>
+
+                <img
+                    class="captcha-image"
+                    src="captcha-image.php?v=<?= time() ?>"
+                    alt="CAPTCHA security code"
+                    width="220"
+                    height="70"
+                >
+
+                <input
+                    type="text"
+                    id="captcha_answer"
+                    name="captcha_answer"
+                    maxlength="6"
+                    autocomplete="off"
+                    autocapitalize="characters"
+                    required
+                >
+
+                <small>
+                    Enter the six-character code shown in the image.
+                    The code is not case-sensitive.
                 </small>
 
             </div>

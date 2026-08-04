@@ -2145,6 +2145,16 @@ select {
     margin-top: 7px;
 }
 
+.captcha-image {
+    display: block;
+    width: 220px;
+    height: 70px;
+    margin: 8px 0 14px;
+    background-color: var(--light-cream);
+    border: 2px solid var(--border);
+    border-radius: 5px;
+}
+
 /* =====================================
    MEDIA QUERY FOR SMALL SCREENS
 ===================================== */
